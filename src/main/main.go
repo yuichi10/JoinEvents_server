@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"login"
 	"net/http"
 	"strings"
 )
@@ -22,6 +23,7 @@ func routing(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", routing)
+	http.HandleFunc("/login", login.Server)
 	err := http.ListenAndServe(":9898", nil)
 	if err != nil {
 		log.Fatal("ListenAndServer:", err)
