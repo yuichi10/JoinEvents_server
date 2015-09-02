@@ -2,12 +2,9 @@ package login
 
 import (
 	"D"
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 	"text/template"
 )
 
@@ -24,12 +21,6 @@ const (
 	resErrId string = "ErrId"
 )
 
-func getMd5Hash(text string) string {
-	hash := md5.New()
-	hash.Write([]byte(text + D.HashKey))
-	return hex.EncodeToString(hash.Sum(nil))
-}
-
 func Server(w http.ResponseWriter, r *http.Request) {
 	//error message for password
 	var errPass string = ""
@@ -42,21 +33,18 @@ func Server(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	fmt.Println(r.Form)
 	//check id that is match policy
-	//The id allowed to use alphabet, capital letter and number
-	//the number of chars is 8 <= id <= 16
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]{8,16}$", r.Form.Get(loginId)); !m {
+	if D.CheckAlphanumeric(r.Form.Get(loginId)) {
 		errId = "alphanumeric only. length is 8 to 16"
 	} else {
-		encId = getMd5Hash(template.HTMLEscapeString(r.Form.Get(loginId)))
+		encId = D.GetMd5Hash(template.HTMLEscapeString(r.Form.Get(loginId)))
 	}
+
 	//check Password that is match policy
-	//The Password allowed to use alphabet, capital letter and number.
-	//the number of chars is 8 <= passowrd <= 16
-	if s, _ := regexp.MatchString("^[a-zA-Z0-9]{8,16}$", r.Form.Get(loginPassword)); !s {
+	if D.CheckAlphanumeric(r.Form.Get(loginPassword)) {
 		errPass = "alphanumeric only. length is 8 to 16"
 		fmt.Println(errPass)
 	} else {
-		encPass = getMd5Hash(template.HTMLEscapeString(r.Form.Get(loginPassword)))
+		encPass = D.GetMd5Hash(template.HTMLEscapeString(r.Form.Get(loginPassword)))
 		fmt.Println(encPass)
 	}
 
