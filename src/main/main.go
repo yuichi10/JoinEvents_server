@@ -6,7 +6,7 @@ import (
 	"login"
 	"net/http"
 	"signup"
-	"strings"
+	_ "strings"
 )
 
 func routing(w http.ResponseWriter, r *http.Request) {
