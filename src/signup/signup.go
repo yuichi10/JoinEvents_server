@@ -21,4 +21,9 @@ func Server(w http.ResponseWriter, r *http.Request) {
 	password2 := r.Form.Get(httpPassword2)
 	name := r.Form.Get(httpName)
 	gender := r.Form.Get(httpGender)
+	fmt.Println(w, id)
+	fmt.Println(w, password1)
+	fmt.Println(w, password2)
+	fmt.Println(w, name)
+	fmt.Println(w, gender)
 }

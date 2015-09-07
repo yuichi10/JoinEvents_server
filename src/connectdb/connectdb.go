@@ -6,17 +6,18 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db interface{}
+var mDb interface{}
 var mTableName string
 var mColums []string
 var mInsertData []string
 
 func opendb() bool {
-	db, err := sql.Open("mysql", "root:@/my_database")
+	db, err := sql.Open("mysql", "userName:password@/databaseName")
+	mDb = db
 	checkErr(err)
 }
 
-func setTableName() {
+func setTableName(mode int) {
 
 }
 
