@@ -26,7 +26,7 @@ func main() {
 	http.HandleFunc("/", routing)
 	http.HandleFunc("/login", login.Server)
 	http.HandleFunc("/signup", signup.Server)
-	err := http.ListenAndServe(":9898", nil)
+	err := http.ListenAndServe(":8989", nil)
 	if err != nil {
 		log.Fatal("ListenAndServer:", err)
 	}
