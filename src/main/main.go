@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/gorilla/mux"
+	_ "html/template"
 	"log"
 	"login"
 	"net/http"
@@ -22,7 +24,23 @@ func routing(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello go world!!!!")
 }
 
+/*
+func login(w http.ResponseWriter, r *http.Request) {
+
+		r.ParseForm()
+		if r.Method == "GET" {
+			t, _ := template.ParseFiles("login.gtpl")
+			w.Header().Set("Content-Type", "text/html")
+			t.Execute(w, sess.Get("username"))
+		} else {
+			sess.Set("username", r.Form["username"])
+			http.Redirect(w, r, "/", 302)
+		}
+
+}*/
+
 func main() {
+	//r := mux.NewRouter()
 	http.HandleFunc("/", routing)
 	http.HandleFunc("/login", login.Server)
 	http.HandleFunc("/signup", signup.Server)

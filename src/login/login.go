@@ -1,12 +1,19 @@
 package login
 
 import (
-	"D"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"text/template"
+	"valid"
 )
+
+type errorList struct {
+	IsErr    bool   `json:"is_err"`
+	Id       string `json:"id_err"`
+	Password string `json:"pass1_err"`
+}
+
+var mErrList errorList
 
 const (
 	//login api for id
@@ -21,46 +28,34 @@ const (
 	resErrId string = "ErrId"
 )
 
-func Server(w http.ResponseWriter, r *http.Request) {
-	//error message for password
-	var errPass string = ""
-	//error message for id
-	var errId string = ""
-	//md5 password and md5 id it for sessionID
-	var encId string
-	var encPass string
+func isErrorcheckErrlist() bool {
+	if mErrList.Id == "" {
+		return true
+	} else if mErrList.Password == "" {
+		return true
+	}
+	return false
+}
 
+func checkIsErr() bool {
+	//check id that is match policy
+	mErrList.Id = valid.SetError(r.Form.Get(loginId), valid.Nonzero, valid.Min4, valid.Max12, valid.Ran)
+	//check Password that is match policy
+	mErrList.Password = valid.SetError(r.Form.Get(loginPassword), valid.Nonzero, valid.Min4, valid.Max12, valid.Ran)
+	mErrList.IsErr = isErrorcheckErrlist()
+	return mErrList.IsErr
+}
+
+func Server(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	fmt.Println(r.Form)
-	//check id that is match policy
-	if D.CheckAlphanumeric(r.Form.Get(loginId)) {
-		errId = "alphanumeric only. length is 8 to 16"
-	} else {
-		encId = D.GetMd5Hash(template.HTMLEscapeString(r.Form.Get(loginId)))
-	}
+	if checkIsErr() {
 
-	//check Password that is match policy
-	if D.CheckAlphanumeric(r.Form.Get(loginPassword)) {
-		errPass = "alphanumeric only. length is 8 to 16"
-		fmt.Println(errPass)
-	} else {
-		encPass = D.GetMd5Hash(template.HTMLEscapeString(r.Form.Get(loginPassword)))
-		fmt.Println(encPass)
+		jsonObj, err := json.Marshal(mErrList)
+		if err != nil {
+			fmt.Println("json err:", err)
+		}
+		//sent json data
+		fmt.Fprintf(w, string(jsonB))
 	}
-
-	//set response data as json
-	resContents := make(map[string]string)
-	//set err of id
-	resContents[resErrId] = errId
-	//set err of password
-	resContents[resErrPass] = errPass
-	//set sesion id
-	resContents[resSessionId] = encId
-	//make json structure
-	jsonB, err := json.Marshal(resContents)
-	if err != nil {
-		fmt.Println("json err:", err)
-	}
-	//sent json data
-	fmt.Fprintf(w, string(jsonB))
 }
