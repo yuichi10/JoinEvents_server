@@ -1,5 +1,0 @@
-package serverManeger
-
-import (
-	"fmt"
-)

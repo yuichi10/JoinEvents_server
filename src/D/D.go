@@ -13,6 +13,7 @@ const (
 const (
 	//the charactors to add password before md5
 	HashKey string = "96A5SFDBgK3B5Jz32nWE"
+	S_Key   string = "C53APDa8dMLiEZaypJV9TQ5rQE_NJKu_dF88Qx2VGB8cC2BJ8m"
 )
 
 func GetMd5Hash(text string) string {

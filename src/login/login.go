@@ -1,8 +1,11 @@
 package login
 
 import (
+	"D"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/sessions"
+	"log"
 	"net/http"
 	"valid"
 )
@@ -14,6 +17,8 @@ type errorList struct {
 }
 
 var mErrList errorList
+
+var Store = sessions.NewCookieStore([]byte(D.S_Key))
 
 const (
 	//login api for id
@@ -37,7 +42,7 @@ func isErrorcheckErrlist() bool {
 	return false
 }
 
-func checkIsErr() bool {
+func checkIsErr(r *http.Request) bool {
 	//check id that is match policy
 	mErrList.Id = valid.SetError(r.Form.Get(loginId), valid.Nonzero, valid.Min4, valid.Max12, valid.Ran)
 	//check Password that is match policy
@@ -49,13 +54,19 @@ func checkIsErr() bool {
 func Server(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	fmt.Println(r.Form)
-	if checkIsErr() {
-
+	if checkIsErr(r) {
 		jsonObj, err := json.Marshal(mErrList)
 		if err != nil {
 			fmt.Println("json err:", err)
 		}
 		//sent json data
-		fmt.Fprintf(w, string(jsonB))
+		fmt.Fprintf(w, string(jsonObj))
+	} else {
+		session, err := Store.Get(r, r.Form.Get(loginId))
+		if err != nil {
+			//panic()
+		}
+		session.Save(r, w)
+		log.Printf("%v", session)
 	}
 }
