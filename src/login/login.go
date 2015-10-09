@@ -2,6 +2,7 @@ package login
 
 import (
 	"D"
+	"connectdb"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/sessions"
@@ -11,9 +12,10 @@ import (
 )
 
 type errorList struct {
-	IsErr    bool   `json:"is_err"`
-	Id       string `json:"id_err"`
-	Password string `json:"pass1_err"`
+	IsErr          bool   `json:"is_err"`
+	Id             string `json:"id_err"`
+	Password       string `json:"pass_err"`
+	ErrDescription string `json:"err_description"`
 }
 
 var mErrList errorList
@@ -34,20 +36,32 @@ const (
 )
 
 func isErrorcheckErrlist() bool {
-	if mErrList.Id == "" {
+	if mErrList.Id != "" {
 		return true
-	} else if mErrList.Password == "" {
+	} else if mErrList.Password != "" {
 		return true
 	}
 	return false
 }
 
 func checkIsErr(r *http.Request) bool {
+	//とりあえず正規表現チェック
 	//check id that is match policy
 	mErrList.Id = valid.SetError(r.Form.Get(loginId), valid.Nonzero, valid.Min4, valid.Max12, valid.Ran)
 	//check Password that is match policy
 	mErrList.Password = valid.SetError(r.Form.Get(loginPassword), valid.Nonzero, valid.Min4, valid.Max12, valid.Ran)
-	mErrList.IsErr = isErrorcheckErrlist()
+	//とりあえず正規表現エラーチェック
+	if mErrList.IsErr = isErrorcheckErrlist(); mErrList.IsErr {
+		mErrList.ErrDescription = "something wrong"
+		return mErrList.IsErr
+	}
+	//存在チェック
+	var md5Pass string = D.GetMd5Hash(r.Form.Get(loginPassword))
+	checkDuplicate := fmt.Sprintf("SELECT user.id FROM user where idUser=\"%s\", password=\"%s\"", r.Form.Get(loginId), md5Pass)
+	if mErrList.IsErr = !connectdb.IsDuplicate(checkDuplicate); mErrList.IsErr {
+		log.Println("err %v", mErrList.IsErr)
+		mErrList.ErrDescription = "something wrong"
+	}
 	return mErrList.IsErr
 }
 
